@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/consent.css">
+    <title>Consent Screen | Auth Server</title>
+</head>
+<body>
+    <div class="consent__container">
+        <h3 class="consent__title">Allow: <%= applicationName %> to access the following:</h3>
+        <ul class="consent__list__items">
+            <% scopes.forEach(scope => { %>
+                <li class="consent__list__items__item"><%= scope.description %></li>
+            <% }); %>
+        </ul>
+        <div class="consent__actions">
+            <button type="button" onclick="allow()" class="consent__actions__button btn_primary">Allow</button>
+            <button type="button" onclick="deny()" class="consent__actions__button btn_secondary">Deny</button>
+        </div>
+    </div>
+</body>
+<script>
+    var redirect_uri = '<%= redirect_uri %>';
+    var search_params = new URLSearchParams(window.location.search);
+
+function deny() {
+    window.location = `/oauth2/callback?error=access_denied&redirect_uri=${redirect_uri}&code=null`;
+}
+
+function allow() {
+    var access_code = search_params.get('access_code');
+    window.location = `/oauth2/callback?redirect_uri=${redirect_uri}&code=${access_code}`;
+}
+</script>
+</html>

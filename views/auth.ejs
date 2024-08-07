@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/auth.css">
+    <title>Login | Auth Server</title>
+</head>
+<body>
+    <div class="login__container">
+<<<<<<< HEAD
+        <div class="login__error">
+            <p class="login__error__message">
+                Error: <strong>Incorrect username or password</strong>
+            </p>
+        </div>
+        <h1 class="login__title">Login to Authorize: <%= applicationName %></h1>
+        <p class="login__description"><%= applicationName %> requests access to your account</p>
+=======
+        <h1 class="login__title">Login to Authorize: <%= applicationName %></h1>
+>>>>>>> 95a6ef59d2a02db9d790016bb40c0fd29c62c063
+        <form action="/login" method="post" class="login__form">
+            <input type="hidden" name="csrf_token" value="<%= csrfToken %>">
+            <div class="login__form__input">
+                <label for="username">Username</label>
+                <div class="wrap">
+                 <input type="text" name="username" id="username" placeholder="username" required>
+                </div>
+            </div>
+            <div class="login__form__input">
+                <label for="password">Password</label>
+                <div class="wrap">
+                    <input type="password" name="password" id="password" placeholder="password" required>               
+                 </div>
+            </div>
+            <div class="login__form__actions">
+                <button type="submit" class="login__form__actions__button btn_primary">Login</button>
+            </div>
+        </form>           
+    </div>
+</body>
+<script>
+    document.querySelector('.login__form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        document.querySelector('.login__error').style.display = 'none';
+        Login();
+    });
+
+    function Login() {
+        const queryParams = new URLSearchParams(window.location.search);
+        let csrf_token = document.querySelector('input[name="csrf_token"]').value;
+        let username = document.querySelector('input[name="username"]').value;
+        let password = document.querySelector('input[name="password"]').value;
+        let data = {
+            csrf_token: csrf_token,
+            username: username,
+            password: password,
+            redirect_uri: queryParams.get('redirect_uri'),
+            client_id: queryParams.get('client_id'),
+            scope: queryParams.get('scope'),
+        }
+        fetch('/oauth2/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(res => {
+            res.json().then(data => {
+                if (data.error) {
+                    alert('Login Failed');
+                } else {
+                    window.location.href = `/oauth2/callback?redirect_uri=${queryParams.get('redirect_uri')}&code=${data.code}`;
+                }
+            }).catch(() => document.querySelector('.login__error').style.display = 'flex');
+        }).catch(() => document.querySelector('.login__error').style.display = 'flex');
+
+    }
+    
+</script>
+</html>

@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "ES6",
+        "allowSyntheticDefaultImports": true,
+        "rootDir": ".",
+        "outDir": "dist",
+        "esModuleInterop": true,    
+        "skipDefaultLibCheck": true,
+        "removeComments": true,
+        "moduleResolution": "Node",
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "allowJs": true,
+        "resolveJsonModule": true
+    },
+    "include": [
+        "index.ts",
+        "oauth.ts",
+        "security/scopes.ts",
+        "config/firebase.ts",
+        "database/actions.ts",
+        "database/main.ts"
+    ],
+    "exclude": ["node_modules", "dist"]
+}

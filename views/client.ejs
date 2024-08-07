@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Client</title>
+</head>
+<body>
+    <p>Logged in as: <div id="user"></div></p>
+    <h1>Tap get an access token</h1>
+    <button>Get Access Token</button>
+    <br>
+    <h1>Tap get user info</h1>
+    <button onclick="getUserInfo()">Get User Info</button>
+    <br>
+    <h2>Current Oauth2 Providers:</h2>
+    <% providers.forEach(provider => { %>
+        <button onclick="initProvider('<%= provider.id %>', '<%= provider.secret %>', '<%= provider.redirectUris[0] %>')"><%= provider.applicationName %></button>
+    <% }); %>
+</body>
+
+<script>
+    function getUserInfo() {
+        fetch('/oauth2/v3/user', {
+            headers: {
+                'Authorization': `Bearer ${window.localStorage.getItem('token')}`
+            }
+        })
+        .then(res => res.json().then(data => {
+            window.alert('You have the user info, check the console!');
+            document.getElementById('user').innerHTML = data.email;
+            console.log("User Info: ", data);
+        }))
+        .catch(() => {
+            window.alert('You need to exchange an access token first!');
+        })
+    }
+    function initProvider(provider_id, client_secret, redirect_uri) {
+        var state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        window.location = `/oauth2?client_id=${provider_id}&client_secret=${client_secret}&redirect_uri=${redirect_uri}&response_type=code&consent=forced&scope=openid,email&state=${state}`;
+    }
+    document.querySelector('button').addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const queryParams = new URLSearchParams(window.location.search);
+        let code = queryParams.get('code');
+        
+        let data = {
+            code: code,
+            grant_type: 'authorization_code',
+        }
+
+        fetch('/oauth2/token', {
+            method: 'POST',            
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+       .then(res => {
+        if (!res.ok) {
+            return window.alert('You have to do the oauth auth flow first!');
+        }
+
+        res.json().then(data => {        
+            window.alert('You have a token, check the console!');
+            console.log(data);
+            localStorage.setItem('token', data.access_token);
+        });
+       }).catch(err => {
+        window.alert('You have to do the oauth auth flow first!');
+       });
+    });
+</script>
+</html>
