@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User, authCode, clients } from "./types";
+import { get_user_by_email as retrieve_user } from './database/actions';
 import { uuid } from "uuidv4";
 import express from "express";
 
@@ -141,29 +142,39 @@ const complete_social_login = (req: express.Request, res: express.Response, logi
         return res.status(401).send(`Invalid login code.`)
 
     fetch(user_endpoint_uri, {
-        method: 'POST',        
+        method: 'GET',        
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': `Bearer ${user_token}`
-        },
-        body: `client_id=${client_id}&client_secret=${client_secret}&code=${code}&grant_type=authorization_code&redirect_uri=${redirect_uri}`
+        }
     })
     .then(response => response.json())
     .then(data => {
-        const user_data = data
+        const user_data = data as any
+
+        const email = user_data.email
+        if (!email)
+            return res.status(401).send('Social login failed, no email found!')
+
+        retrieve_user(email).then(user => {            
+            const token = jwt.sign({
+                user: user
+            }, process.env.JWT_SECRET!, {
+                expiresIn: '30d'
+            })
+
+            res.cookie('token', token)
+
+            return res.json({
+                message: 'Login successful!',
+                user_token: token,
+                user: user
+            })
+
+    }).catch(err => {
+        return res.status(401).send('Social login failed, network error!')
+    })
         
-        const token = jwt.sign({
-            user: user_data
-        }, process.env.JWT_SECRET!, {
-            expiresIn: '30d'
-        })
-
-        res.cookie('token', token)
-
-        return res.json({
-            message: 'Login successful!',
-            user_token: token
-        })
     }).catch(err => {
         return res.status(401).send('Social login failed, network error!')
     })        

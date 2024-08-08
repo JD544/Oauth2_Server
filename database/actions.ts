@@ -8,6 +8,7 @@ import { Get_App, Get_Auth } from "../config/firebase";
 
 import { Auth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { FirebaseApp } from "firebase/app";
+import { query as DocQuery, where, getFirestore, collection, getDocs } from "firebase/firestore";
 
 export const authentication_backend = dotenv.config().parsed?.AUTHENTICATION_BACKEND;
 
@@ -93,13 +94,34 @@ function Login(email: string, password: string): Promise<User | null> {
  */
 function get_user_by_email(email: string) {
     return new Promise((resolve, reject) => {
-        query(`SELECT * FROM users WHERE email = ?`, [email]).then((users: any) => {
-            if (users.length > 0) {
-                resolve(users[0]);
-            } else {
-                reject('Could not find user: ' + email);
-            }
-        })
+        if (!email)
+            return reject('Invalid email');
+
+        if (authentication_backend === "firebase") {
+            const app = Get_App();
+            const db = getFirestore(app as FirebaseApp);
+
+            const ref = collection(db, "users");
+            const q = DocQuery(ref, where("email", "==", email));
+            getDocs(q).then((querySnapshot) => {
+                if (querySnapshot.size > 0) {
+                    const user = querySnapshot.docs[0].data() as User;
+                    resolve(user);
+                } else {
+                    reject('Could not find user: ' + email);
+                }
+            })
+        }
+
+        if (authentication_backend === "external") {
+            query(`SELECT * FROM users WHERE email = ?`, [email]).then((users: any) => {
+                if (users.length > 0) {
+                    resolve(users[0]);
+                } else {
+                    reject('Could not find user: ' + email);
+                }
+            })
+        }
     })
 }
 
@@ -123,13 +145,31 @@ function get_user_by_id(id: string): Promise<User | null> {
             return resolve(user);
         }
 
-        query(`SELECT * FROM users WHERE id = ?`, [id]).then((users: any) => {
-            if (users.length > 0) {
-                resolve(users[0]);
-            } else {
-                reject('Could not find user: ' + id);
-            }
-        })
+        if (authentication_backend === "firebase") {
+            const app = Get_App();
+            const db = getFirestore(app as FirebaseApp);
+
+            const ref = collection(db, "users");
+            const q = DocQuery(ref, where("id", "==", id));
+            getDocs(q).then((querySnapshot) => {
+                if (querySnapshot.size > 0) {
+                    const user = querySnapshot.docs[0].data() as User;
+                    resolve(user);
+                } else {
+                    reject('Could not find user: ' + id);
+                }
+            })
+        }
+
+        if (authentication_backend === "external") {
+            query(`SELECT * FROM users WHERE id = ?`, [id]).then((users: any) => {
+                if (users.length > 0) {
+                    resolve(users[0]);
+                } else {
+                    reject('Could not find user: ' + id);
+                }
+            })
+        }
     })
 }
 
