@@ -6,6 +6,11 @@ Just like Platforms like Okta, Azure AD, Auth0, etc. You can build your own auth
 
 You can build custom client applications that will be able to authenticate users and request access tokens from this server. Additionally, you can setup mutiple rules of authentication and authorization, Like adding scoped permissions to your users. This is how many other authorization servers work
 
+# How it works at a fundamental level 
+
+![image](https://github.com/user-attachments/assets/9d8e0b56-476e-4992-be93-25dddafc6621)
+
+
 # Installation
 To install this project, you need to have Node.js and npm installed on your machine.
 Once you have Node.js and npm installed, you can install this project by running the following command:
