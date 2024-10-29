@@ -27,7 +27,7 @@ npm install
 - Easy to use - It is easy to use and understand
 - Compatible with any oauth2.0 client - You can use this server with any oauth2.0 client
 - Easy to deploy - You can deploy this server to any platform, like AWS, Azure, etc.
-- Easy to extnpend - You can extend this server to your needs, like adding new authentication modes, or adding new scopes
+- Easy to extend - You can extend this server to your needs, like adding new authentication modes, or adding new scopes
 - Easy to test - You can test this server with the demo client, which you can find in the `views/client` folder
 - Deep integration with the Oauthify library - You can use the Oauthify library to integrate this server with your client applications, built also by me.
 
